@@ -12,7 +12,15 @@ session = boto3.Session(profile_name='default')
 s3 = session.client('s3',verify=False)
 
 def list_folders_in_bucket(bucket_name):
+    """
+    Lists the folders in the specified S3 bucket.
+    Args:
+        bucket_name: Name of the S3 bucket.
+    Returns:
+        List of folder names in the S3 bucket.
+    """
     try:
+        # List objects in the bucket with delimiter '/'
         response = s3.list_objects_v2(Bucket=bucket_name, Delimiter='/')
         folders = [prefix['Prefix'] for prefix in response['CommonPrefixes']]
         return folders
@@ -24,6 +32,14 @@ def list_folders_in_bucket(bucket_name):
         return []
 
 def download_files_from_s3(bucket_name, s3_folder, local_folder):
+    """
+    Downloads files from the specified S3 folder to the local folder.
+    Args:
+        bucket_name: Name of the S3 bucket.
+        s3_folder: Path to the S3 folder containing the files to download.
+        local_folder: Path to the local folder where the files will be downloaded
+    """
+    
     try:
         # Create local folder if it doesn't exist
         if not os.path.exists(local_folder):
@@ -56,6 +72,13 @@ def download_files_from_s3(bucket_name, s3_folder, local_folder):
 
 
 def download_initializer(bucket_name,data_folder):
+    """
+    Downloads files from the specified S3 bucket to the local folder.
+    Args:
+        bucket_name: Name of the S3 bucket.
+        data_folder: Path to the local folder where the files will be downloaded.
+    """
+
     print("Downloading files from S3 bucket")
     print(f"Bucket Name: {bucket_name}")
     print(f"Data Folder: {data_folder}")
@@ -64,16 +87,20 @@ def download_initializer(bucket_name,data_folder):
     data_folder = os.path.join(current_dir, data_folder)
     print(bucket_name)
     try:
-
+        # List folders in the specified S3 bucket
         s3_folders = list_folders_in_bucket(bucket_name) #["forex", "gold_silver"]
         if s3_folders:
             for s3_folder in s3_folders:
                 local_folder = os.path.join(".",data_folder, s3_folder)
-                download_files_from_s3(bucket_name, s3_folder, local_folder)        
+                download_files_from_s3(bucket_name, s3_folder, local_folder)
+        print("Files downloaded successfully.")
+        return True
 
     except NoCredentialsError:
         print("Error: AWS credentials not available.")
+        return False
     except ClientError as e:
         print(f"Error: {e}")
+        return False
 
 

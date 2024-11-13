@@ -7,6 +7,11 @@ import shutil
 
 class Snowflake:
     def __init__(self, user, password, account, warehouse, database, schema):
+        """
+        Initializes a connection to Snowflake using the provided credentials and sets the context for the connection.
+        If the connection is successful, the connection ID, database, and warehouse information are printed.
+        If there is an error during the connection process, an error message is printed.
+        """
         try:
             self.ctx = snowflake.connector.connect(
                 user=user,
@@ -26,6 +31,14 @@ class Snowflake:
             raise
 
     def load_lookup_table(self):
+        """
+        Loads data from a CSV file specified by the LOOKUP_FILE environment variable into the Date_Lookup table in Snowflake.
+        The CSV file should have two columns: bs_date and ad_date.
+        The function reads the CSV file, constructs a list of tuples containing the data, and then inserts the data into the Date_Lookup table using an INSERT
+        SQL query.
+        If the LOOKUP_FILE environment variable is not set or if there is an error during the file reading or data insertion process, an error message is printed.
+        """
+        
         lookup_file = os.environ.get("LOOKUP_FILE")
         if not lookup_file:
             print("LOOKUP_FILE environment variable is not set")
@@ -44,6 +57,9 @@ class Snowflake:
             print(f"Failed to load lookup table: {e}")
 
     def get_date_lookup(self, min_date, max_date):
+        """
+        Fetches the date lookup data from the Date_Lookup table in Snowflake for the given date range.
+        """
         try:
             lookup_query = f"""
                 SELECT bs_date, ad_date 
@@ -60,7 +76,15 @@ class Snowflake:
             return {}
 
     def load_data_to_snowflake(self, base_data_dir, batch_size=1000):
+        """
+        Loads data from CSV files in nested folders under the base_data_dir directory into Snowflake tables.
+        The function iterates through the nested folders, reads the CSV files, and loads the data into the corresponding tables in Snowflake.
+        The function also moves the processed files to an archive folder outside the data folder.
+        The function uses the get_date_lookup method to fetch the date lookup data from the Date_Lookup table in Snowflake.
+        If there is an error during the data loading process, an error message is printed.
+        """
         try:
+            # Iterate through nested folders in the base data directory and load data into Snowflake tables
             for subdir, _, files in os.walk(base_data_dir):
                 table_name = os.path.basename(subdir)
                 if not files:

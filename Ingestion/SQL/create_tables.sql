@@ -1,4 +1,5 @@
 
+-- Create tables in snowflake
 CREATE TABLE IF NOT EXISTS Date_Lookup
 (
     bs_date STRING,
