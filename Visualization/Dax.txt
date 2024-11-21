@@ -5,20 +5,34 @@ Max Sell Rate = MAXX('Fact_Gold_Forex',[Uniform_Sell])
 Min Buy Rate = MAXX('Fact_Gold_Forex',[Uniform_Buy]) 
 
  
+Min Buy Date = 
+    VAR MinRate = [Min Buy Rate]
+    VAR FilteredRows = 
+        FILTER(
+            ALL('Fact_Gold_Forex'),
+            'Fact_Gold_Forex'[Uniform_Buy] = MinRate
+        )
+    VAR MinRateDate = 
+        MINX(
+            FilteredRows,
+            RELATED(Dimension_Date[date])
+        )
+    RETURN FORMAT(MinRateDate, "yyyy/mm/dd")
+
 
 Max Sell Date = 
-     VAR MaxRateDate = CALCULATE( 
-         MAX(Dimension_Date[date]), 
-         FILTER('Fact_Gold_Forex',[Uniform_Sell]=[Max Sell Rate])) 
-     RETURN FORMAT(MaxRateDate,"yyyy/mm/dd") 
-
- 
-
-Min Buy Date = 
-     VAR MinRateDate = CALCULATE( 
-         MIN(Dimension_Date[date]), 
-         FILTER('Fact_Gold_Forex',[Uniform_Buy]=[Min Buy Rate])) 
-     RETURN FORMAT(MinRateDate,"yyyy/mm/dd") 
+    VAR MaxRate = [Max Sell Rate]
+    VAR FilteredRows = 
+        FILTER(
+            ALL('Fact_Gold_Forex'),
+            'Fact_Gold_Forex'[Uniform_Sell] = MaxRate
+        )
+    VAR MaxRateDate = 
+        MAXX(
+            FilteredRows,
+            RELATED(Dimension_Date[date])
+        )
+    RETURN FORMAT(MaxRateDate, "yyyy/mm/dd")
 
  
 
