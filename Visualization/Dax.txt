@@ -2,7 +2,7 @@ Max Sell Rate = MAXX('Fact_Gold_Forex',[Uniform_Sell])
 
  
 
-Min Buy Rate = MAXX('Fact_Gold_Forex',[Uniform_Buy]) 
+Min Buy Rate = MINX('Fact_Gold_Forex',[Uniform_Buy]) 
 
  
 Min Buy Date = 
